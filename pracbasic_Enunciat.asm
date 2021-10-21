@@ -209,8 +209,70 @@ posCurScreenP1 endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;getMoveP1:
 getMoveP1 proc
+   
    push ebp
    mov  ebp, esp
+   Push_all
+
+
+   bucle_getch:
+
+   call getch
+
+
+   ;; Comparem les Majuscules
+
+   ;; Descriminem si [carac2] és una se les seguents lletres (Masjuscules):
+   mov al, 0
+   mov bl, 0
+   cmp [carac2], 73 ;ASCI de la I
+   jl restants_maj
+   mov al, 1
+   cmp [carac2], 77 ;ASCI a la M
+   jg restants_maj
+   mov bl, 1
+
+   AND al, bl
+   cmp al, 1
+   je fi
+
+
+   restants_maj:
+   cmp [carac2], 83 ;ASCI S
+   je fi
+
+   
+   ;; Comparem les Miniuscules
+
+   ;; Descriminem si [carac2] és una se les seguents lletres (Minuscules):
+   mov al, 0
+   mov bl, 0
+   cmp [carac2], 105 ;ASCI de la i
+   jl restants_min
+   mov al, 1
+   cmp [carac2], 109 ;ASCI a la m
+   jg restants_min
+   mov bl, 1
+
+   AND al, bl
+   cmp al, 1
+   je fi
+
+
+   restants_min:
+   cmp [carac2], 115 ;ASCI s
+   je fi
+
+   cmp [carac2], 32 ;ASCI " "
+   je fi
+
+
+
+   jmp bucle_getch
+
+   fi:
+
+   Pop_all
 
    mov esp, ebp
    pop ebp
@@ -237,7 +299,83 @@ getMoveP1 endp
 moveCursorP1 proc
    push ebp
    mov  ebp, esp 
+   Push_all
 
+
+
+   ;; comparem "i" i "I"
+   cmp [carac2], 73
+   je moure_amunt
+   cmp [carac2], 105
+   ;; en cas de coincidencia movem a etiqueta moure_amunt
+   je moure_amunt
+
+
+   ;; comparem "j" i "J"
+   cmp [carac2], 74
+   je moure_esquerra
+   cmp [carac2], 106
+   ;; en cas de coincidencia movem a etiqueta moure_esquerra
+   je moure_esquerra
+   
+
+   ;; comparem "k" i "K"
+   cmp [carac2], 75
+   je moure_aball
+   cmp [carac2], 107
+   ;; en cas de coincidencia movem a etiqueta moure_aball
+   je moure_aball
+
+
+   ;; comparem "l" i "L"
+   cmp [carac2], 76
+   je moure_dreta
+   cmp [carac2], 108
+   ;; en cas de coincidencia movem a etiqueta moure_dreta
+   je moure_dreta
+
+
+   moure_amunt:
+   dec [rowCur]
+   cmp [rowCur], 1
+   jge fi
+   inc [rowCur]
+   jmp fi
+
+   moure_esquerra:
+   dec [colCur]
+   cmp [colCur], 65
+   jge fi
+   inc [colCur]
+   jmp fi
+
+   moure_aball:
+   inc [rowCur]
+   cmp [rowCur], 8
+   jle fi
+   dec [rowCur]
+   jmp fi
+
+   moure_dreta:
+   inc [colCur]
+   cmp [colCur], 72
+   jle fi
+   
+   dec [colCur]
+   jmp fi
+
+   fi:
+
+   ; [row] = [rowCur]
+   mov eax, [rowCur]
+   mov [row], eax
+
+   ; [col] = [colCur]
+   mov bl, [colCur]
+   mov [col], bl
+
+
+   Pop_all
    mov esp, ebp
    pop ebp
    ret
@@ -258,9 +396,22 @@ moveCursorP1 endp
 movContinuoP1 proc
 	push ebp
 	mov  ebp, esp
+	Push_all
 
-	
+	;;ESTÀ MALAMENT
+	bucle:
+	call moveCursorP1
+	call getMoveP1
+	call posCurScreenP1
+	mov eax, [rowCur]
 
+	cmp [carac2], 115 ;ASCI s
+	je fi
+
+	jmp bucle
+	fi:
+
+	Pop_all
 	mov esp, ebp
 	pop ebp
 	ret
