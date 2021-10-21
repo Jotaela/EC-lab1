@@ -432,9 +432,16 @@ movContinuoP1 endp
 calcIndexP1 proc
 	push ebp
 	mov  ebp, esp
-	
-	
+	Push_all
 
+	mov ebx, [row]
+	shl ebx, 3
+	mov al, [col]
+	add ebx, eax
+	sub ebx, 65
+	mov [indexMat], ebx
+	
+	Pop_all
 	mov esp, ebp
 	pop ebp
 	ret
